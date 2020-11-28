@@ -1,59 +1,26 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include<arpa/inet.h>
+#include<sys/socket.h>
+#include <pthread.h>
+#include <sys/time.h>
+#include "func.c"
 
-#define MAX 10
-#define MAX_L 300
-
-struct _roteador
+int main(int argc, char const *argv[])
 {
-	unsigned int id;
-	unsigned int process;
-	char *ip;
-}typedef roteador;
+	router roteador;
+	router vizinho;
+	vizinho.id = 2;
+	vizinho.process = 25000;
+	vizinho.ip = "127.0.0.1";
 
-int main()
-{
-	FILE *arquivo = NULL;
-	roteador r[MAX];
-	int i;
-	char *linha;
-	char *token;
-	
-	arquivo = fopen("roteador.config","r");
-	
-	if (arquivo == NULL)
-	{
-		printf("Falha abertura do arquivo roteador.config");
-		return 0;	
-	} 
+	roteador = config_router("roteador.config", atoi(argv[1]));
+	printf("id do roteador = %d\n", roteador.id);
 
-	linha = (char *) malloc(MAX_L * sizeof(char));
-	
-	fseek(arquivo, 0 , SEEK_SET);
+	if (roteador.id == 1) router_server (roteador);
 
-	for ( i = 0; i < MAX; i++)
-	{
-		if (feof(arquivo)) break;
-		fgets(linha, MAX_L, arquivo);
-		
-		token = strtok(linha, " ");  
-		if (atoi(token) < 1) break;
-		
-		r[i].id = atoi(token);
-      	
-      	token = strtok(NULL, " ");
-      	r[i].process = atoi(token);
+	if (roteador.id == 2) router_client (vizinho);
 
-      	token = strtok(NULL, " \n");
-      	r[i].ip = token;
-	}
-	for (int j = 0; j < i; j++)
-	{
-		printf("%d\n", r[j].id);
-		printf("%d\n", r[j].process);
-		printf("%s\n", r[j].ip);
-	}
-
-	fclose(arquivo);
+	return 0;
 }
