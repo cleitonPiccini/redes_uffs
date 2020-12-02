@@ -18,6 +18,16 @@ void die(char *s)
     exit(1);
 }
 
+pthread_mutex_t count_mutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_t tids[6];
+
+void init() 
+{
+	//Inicializa os processor do roteador.
+      pthread_create(&tids[i], NULL, philosopher, (void*)j);
+}
+
+//
 router config_router (char *nome_arquivo, int id)
 {
 	FILE *arquivo = NULL;
@@ -137,7 +147,7 @@ void router_server (router roteador)
     {
         die("bind");
     }
-     
+     printf("%d\n", &slen );
     //keep listening for data
     while(1)
     {
@@ -146,9 +156,10 @@ void router_server (router roteador)
         //receive a reply and print it
         //clear the buffer by filling null, it might have previously received data
         memset(buf,'\0', BUFLEN);
-
+        
+        recv_len = recvfrom(s, buf, BUFLEN, 0, (struct sockaddr *) &si_other, &slen);
         //try to receive some data, this is a blocking call
-        if ((recv_len = recvfrom(s, buf, BUFLEN, 0, (struct sockaddr *) &si_other, &slen)) == -1)
+        if (recv_len == -1)
         {
             die("recvfrom()");
         }
@@ -194,19 +205,7 @@ void router_client (router roteador)
  
     while(1)
     {
-        //printf("Enter message : ");
-        //gets(message);
-        //scanf("%s",message);
-        message[0] = 'o';
-        message[1] = 'i';
-        message[2] = ' ';
-        message[3] = 'g';
-        message[4] = 'e';
-        message[5] = 'n';
-        message[6] = 't';
-        message[7] = 'e';
-        //message[0] = "oi gente";
-        //message[0] = "oi gente";
+        strcpy(message, "vetor distancia\n");
         sleep(4); 
         //send the message
         if (sendto(s, message, strlen(message) , 0 , (struct sockaddr *) &si_other, slen)==-1)
@@ -229,3 +228,4 @@ void router_client (router roteador)
     close(s);
 
 }
+
