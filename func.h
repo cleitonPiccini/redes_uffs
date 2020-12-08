@@ -1,9 +1,21 @@
-//#include "func.c"
-#ifndef func_h
-#define func_h
+struct _router
+{
+	unsigned int id;
+	unsigned int process;
+	char *ip;
+}typedef router;
 
-extern void p();
-extern int treco (int i);
+void die(char *s)
+{
+    perror(s);
+    exit(1);
+}
 
-#endif
+void router_send ();
+void router_receive ();
+
+pthread_mutex_t count_mutex = PTHREAD_MUTEX_INITIALIZER;
+
+
+router roteador;
 

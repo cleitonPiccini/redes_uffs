@@ -1,3 +1,5 @@
+#include "func.h"
+
 #define MAX 10
 #define MAX_L 300
 
@@ -5,46 +7,25 @@
 //#define BUFLEN 512  //Max length of buffer
 //#define PORT 8888   //The port on which to listen for incoming data
  
-struct _router
-{
-	unsigned int id;
-	unsigned int process;
-	char *ip;
-}typedef router;
-
-void die(char *s)
-{
-    perror(s);
-    exit(1);
-}
-
-pthread_mutex_t count_mutex = PTHREAD_MUTEX_INITIALIZER;
-pthread_t tids[6];
-
-void init() 
-{
-	//Inicializa os processor do roteador.
-      pthread_create(&tids[i], NULL, philosopher, (void*)j);
-}
 
 //
-router config_router (char *nome_arquivo, int id)
+void config_router (char *nome_arquivo, int id)
 {
 	FILE *arquivo = NULL;
-	router r;
+	//router r;
 	int i;
 	char *linha;
 	char *token;
 	
-	r.id = 0;
-	r.process = 0;
-	r.ip = "0.0.0.0";
+	roteador.id = 0;
+	roteador.process = 0;
+	roteador.ip = "0.0.0.0";
 		
 	arquivo = fopen( nome_arquivo,"r");
 	if (arquivo == NULL)
 	{
 		printf("Falha abertura do arquivo roteador.config");
-		return r;	
+		return;	
 	} 
 
 	linha = (char *) malloc(MAX_L * sizeof(char));
@@ -61,17 +42,17 @@ router config_router (char *nome_arquivo, int id)
 		
 		if (atoi(token) == id)
 		{
-			r.id = atoi(token);
+			roteador.id = atoi(token);
       		token = strtok(NULL, " ");
-      		r.process = atoi(token);
+      		roteador.process = atoi(token);
       		token = strtok(NULL, " \n");
-      		r.ip = token;
+      		roteador.ip = token;
       		break;
 		}
 	}
 
 	fclose(arquivo);
-	return r;
+	//return r;
 }
 
 router router_link (char *nome_arquivo, int id)
@@ -121,14 +102,14 @@ router router_link (char *nome_arquivo, int id)
 }
 
 
-void router_server (router roteador)
+void router_send ()
 {
-	 
+    
     struct sockaddr_in si_me, si_other;
      
     int s, i, slen = sizeof(si_other) , recv_len;
     char buf[BUFLEN];
-     
+    
     //create a UDP socket
     if ((s=socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1)
     {
@@ -180,14 +161,15 @@ void router_server (router roteador)
 }
 
 
-void router_client (router roteador)
+void router_receive (void *id_thread)
 {
-
+    
     struct sockaddr_in si_other;
+    
     int s, i, slen=sizeof(si_other);
     char buf[BUFLEN];
     char message[BUFLEN];
- 
+
     if ( (s=socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1)
     {
         die("socket");
