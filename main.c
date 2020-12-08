@@ -16,7 +16,7 @@ int main(int argc, char const *argv[])
 
 	config_router("roteador.config", atoi(argv[1]));
 	printf("id do roteador = %d\n", roteador.id);
-
+	router_link("enlace.config");
 	pthread_create(&threads[0], NULL, router_send, NULL);
 	pthread_create(&threads[1], NULL, router_receive, NULL);
     

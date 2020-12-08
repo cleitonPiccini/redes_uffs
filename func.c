@@ -1,15 +1,12 @@
 #include "func.h"
 
-#define MAX 10
-#define MAX_L 300
 
-#define BUFLEN 512  //Max length of buffer
 //#define BUFLEN 512  //Max length of buffer
 //#define PORT 8888   //The port on which to listen for incoming data
  
 
 //
-void config_router (char *nome_arquivo, int id)
+void config_router (int id)
 {
 	FILE *arquivo = NULL;
 	//router r;
@@ -17,90 +14,94 @@ void config_router (char *nome_arquivo, int id)
 	char *linha;
 	char *token;
 	
-	roteador.id = 0;
-	roteador.process = 0;
-	roteador.ip = "0.0.0.0";
-		
-	arquivo = fopen( nome_arquivo,"r");
+	router[id].id = id;
+	
+	arquivo = fopen( "roteador.config","r");
 	if (arquivo == NULL)
 	{
 		printf("Falha abertura do arquivo roteador.config");
 		return;	
 	} 
 
-	linha = (char *) malloc(MAX_L * sizeof(char));
+	linha = (char *) malloc(MAX_LINE * sizeof(char));
 	fseek(arquivo, 0 , SEEK_SET);
 
-	for ( i = 0; i < MAX; i++)
+	for ( i = 0; i < MAX_ROUTER; i++)
 	{
 		if (feof(arquivo)) break;
 		
-		fgets(linha, MAX_L, arquivo);
+		fgets(linha, MAX_LINE, arquivo);
 		token = strtok(linha, " ");  
 		
 		if (atoi(token) < 1) break;
 		
 		if (atoi(token) == id)
 		{
-			roteador.id = atoi(token);
       		token = strtok(NULL, " ");
-      		roteador.process = atoi(token);
+      		router[id].process = atoi(token);
       		token = strtok(NULL, " \n");
-      		roteador.ip = token;
+      		router[id].ip = token;
       		break;
 		}
 	}
 
 	fclose(arquivo);
-	//return r;
 }
 
-router router_link (char *nome_arquivo, int id)
+void router_link ()
 {
-	FILE *arquivo = NULL;
-	router r;
-	int i;
-	char *linha;
-	char *token;
-	
-	r.id = 0;
-	r.process = 0;
-	r.ip = "0.0.0.0";
-		
-	arquivo = fopen( nome_arquivo,"r");
-	if (arquivo == NULL)
-	{
-		printf("Falha abertura do arquivo roteador.config");
-		return r;	
-	} 
+    FILE *arquivo = NULL;
+    
+    int index_arquivo, index_vizinhos;
+    char *linha;
+    char *token;
+    
+    vizinhos[0].id = 0;
+    vizinhos[0].process = 0;
+    vizinhos[0].ip = "0.0.0.0";
+    vizinhos[0].hop = 0;
+        
+    arquivo = fopen( "enlace.config","r");
+    if (arquivo == NULL)
+    {
+        printf("Falha abertura do arquivo enlace.config");
+        return; 
+    } 
 
-	linha = (char *) malloc(MAX_L * sizeof(char));
-	fseek(arquivo, 0 , SEEK_SET);
+    linha = (char *) malloc(MAX_LINE * sizeof(char));
+    fseek(arquivo, 0 , SEEK_SET);
 
-	for ( i = 0; i < MAX; i++)
-	{
-		if (feof(arquivo)) break;
-		
-		fgets(linha, MAX_L, arquivo);
-		token = strtok(linha, " ");  
-		
-		if (atoi(token) < 1) break;
-		
-		if (atoi(token) == id)
-		{
-			r.id = atoi(token);
-      		token = strtok(NULL, " ");
-      		r.process = atoi(token);
-      		token = strtok(NULL, " \n");
-      		r.ip = token;
-      		break;
-		}
-	}
+    for ( index_arquivo = 0, index_vizinhos = 0; index_arquivo < MAX_ROUTER; index_arquivo++)
+    {
 
-	fclose(arquivo);
-	return r;
+        //if (fscanf(f, "%d %d %d", &router1, &router2, &cost) != EOF)
+
+        if (feof(arquivo)) break;
+        
+        fgets(linha, MAX_LINE, arquivo);
+        token = strtok(linha, " ");  
+        
+        if (atoi(token) < 1) break;
+        
+        if (atoi(token) == roteador.id)
+        {
+            
+            token = strtok(NULL, " ");
+            vizinhos[index_vizinhos].id = atoi(token);
+            token = strtok(NULL, " \n");
+            vizinhos[index_vizinhos].hop = atoi(token);
+            config_router(index_vizinhos)
+            index_vizinhos++;
+        }
+    }
+    printf("oi eu sou o vizinho numero %d\n",vizinhos[0].id );
+    
+
+
+    fclose(arquivo);
 }
 
+void router_process 
 
 void router_send ()
 {
